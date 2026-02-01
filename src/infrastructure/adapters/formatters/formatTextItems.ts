@@ -8,7 +8,10 @@ type TextFormat =
   | "checkbox"
   | "nestedCheckbox"
   | "paragraph1"
-  | "paragraph2";
+  | "paragraph2"
+  | "big"
+  | "medium"
+  | "small";
 
 export type TextItem = {
   content: string;
@@ -39,6 +42,12 @@ export const formatTextItems = (items: TextItem[]): string => {
           return ` ${content}`;
         case "paragraph2":
           return `  ${content}`;
+        case "big":
+          return `[******** ${content}]`;
+        case "medium":
+          return `[**** ${content}]`;
+        case "small":
+          return `[* ${content}]`;
         default: {
           const exhaustiveCheck: never = format;
           throw new Error(`Unsupported format: ${exhaustiveCheck}`);

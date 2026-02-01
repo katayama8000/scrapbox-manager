@@ -4,7 +4,7 @@ import { ScrapboxPage } from "@/domain/models/scrapbox-page.ts";
 import { formatDate } from "@/infrastructure/adapters/formatters/formatDate.ts";
 import { formatTextItems } from "@/infrastructure/adapters/formatters/formatTextItems.ts";
 import { DateProviderImpl } from "@/infrastructure/adapters/date/date-provider-impl.ts";
-import { CalculateAverageWakeUpTimeUseCase } from '@/application/use-cases/calculate_average_wake_up_time.ts';
+import { CalculateAverageWakeUpTimeUseCase } from "@/application/use-cases/calculate_average_wake_up_time.ts";
 import { CalculateAverageSleepQualityUseCase } from "@/application/use-cases/calculate_average_sleep_quality.ts";
 import { ScrapboxPayloadBuilder } from "@/infrastructure/adapters/scrapbox/scrapbox-payload-builder.ts";
 
@@ -12,14 +12,14 @@ import { ScrapboxPayloadBuilder } from "@/infrastructure/adapters/scrapbox/scrap
 const dailyTemplate = {
   buildText: (connectLink: string): string => {
     return formatTextItems([
-      { content: "Wake-up Time", format: "paragraph1" },
-      { content: "Today's Tasks", format: "paragraph1" },
+      { content: "Wake-up Time", format: "medium" },
+      { content: "Today's Tasks", format: "medium" },
       {
         content: "https://tatsufumi.backlog.com/board/FAMILY",
         format: "nestedPlain",
       },
-      { content: "Score sleep quality", format: "paragraph1" },
-      { content: "How was the day?", format: "paragraph1" },
+      { content: "Score sleep quality", format: "medium" },
+      { content: "How was the day?", format: "medium" },
       { content: connectLink, format: "link" },
       { content: "daily", format: "link" },
     ]);
@@ -78,13 +78,13 @@ const weeklyTemplate = {
     avgSleepQuality: number,
   ): string => {
     return formatTextItems([
-      { content: "Last week's average wake-up time", format: "strong" },
+      { content: "Last week's average wake-up time", format: "medium" },
       { content: ` ${avgWakeUpTime.toString()}h`, format: "plain" },
-      { content: "Last week's average sleep quality", format: "strong" },
+      { content: "Last week's average sleep quality", format: "medium" },
       { content: ` ${avgSleepQuality.toString()}`, format: "plain" },
-      { content: "Goals", format: "strong" },
-      { content: "Try somwthing new", format: "strong" },
-      { content: "How was the week", format: "strong" },
+      { content: "Goals", format: "medium" },
+      { content: "Try something new", format: "medium" },
+      { content: "How was the week", format: "medium" },
       { content: connectLink, format: "link" },
       { content: "weekly", format: "link" },
     ]);

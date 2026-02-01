@@ -45,7 +45,10 @@ const main = async () => {
       const calculateAverageWakeUpTimeUseCase =
         new CalculateAverageWakeUpTimeUseCase(scrapboxRepository, dateProvider);
       const calculateAverageSleepQualityUseCase =
-        new CalculateAverageSleepQualityUseCase(scrapboxRepository, dateProvider);
+        new CalculateAverageSleepQualityUseCase(
+          scrapboxRepository,
+          dateProvider,
+        );
       const postWeeklyBlogUseCase = new PostWeeklyBlogUseCase(
         scrapboxRepository,
         dateProvider,
