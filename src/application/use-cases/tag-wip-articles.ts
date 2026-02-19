@@ -1,4 +1,4 @@
-import { ScrapboxRepository } from "@/application/ports/scrapbox-repository.ts";
+import { ScrapboxRepository } from '@/application/ports/scrapbox-repository.ts';
 
 export class TagWipArticlesUseCase {
   constructor(
@@ -9,7 +9,7 @@ export class TagWipArticlesUseCase {
   async execute(): Promise<void> {
     const pages = await this.scrapboxRepository.listPages(this.projectName);
     if (!pages) {
-      console.log("No pages found.");
+      console.log('No pages found.');
       return;
     }
 
@@ -20,23 +20,23 @@ export class TagWipArticlesUseCase {
     for (const page of pages) {
       processedCount++;
       console.log(
-        `[${processedCount}/${totalPages}] Checking "${page.title}"...`,
+        `[${processedCount}/${totalPages}] Checking "${page.getTitle()}"...`,
       );
 
-      const isEmpty = page.linesCount <= 1;
+      const isEmpty = (page.getLines()?.length ?? 0) <= 1;
 
       if (isEmpty) {
         console.log(`  -> Page is empty. Checking for #WIP tag...`);
         const v = await this.scrapboxRepository.getPage(
           this.projectName,
-          page.title,
+          page.getTitle(),
         );
 
         if (v) {
           const content = v.getContent();
-          if (!content.includes("#WIP")) {
+          if (!content.includes('#WIP')) {
             console.log(`  -> #WIP tag not found. Adding it.`);
-            const newContent = content + "\n#WIP";
+            const newContent = content + '\n#WIP';
             const newPage = v.update({ content: newContent });
             await this.scrapboxRepository.post(newPage);
           } else {
@@ -45,6 +45,6 @@ export class TagWipArticlesUseCase {
         }
       }
     }
-    console.log("Processing finished.");
+    console.log('Processing finished.');
   }
 }

@@ -1,4 +1,4 @@
-import { IScrapboxPageNotification } from "@/application/ports/scrapbox-page-notification.ts";
+import { IScrapboxPageNotification } from '@/application/ports/scrapbox-page-notification.ts';
 
 export class ScrapboxPage {
   private constructor(
@@ -9,6 +9,20 @@ export class ScrapboxPage {
   ) {}
 
   static create({
+    projectName,
+    title,
+    content,
+    lines,
+  }: {
+    projectName: string;
+    title: string;
+    content: string;
+    lines?: string[];
+  }): ScrapboxPage {
+    return new ScrapboxPage(projectName, title, content, lines);
+  }
+
+  static reconstruct({
     projectName,
     title,
     content,

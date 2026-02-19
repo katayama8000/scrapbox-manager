@@ -1,7 +1,4 @@
-import {
-  ScrapboxPageSummary,
-  ScrapboxRepository,
-} from '@/application/ports/scrapbox-repository.ts';
+import { ScrapboxRepository } from '@/application/ports/scrapbox-repository.ts';
 import { ScrapboxPage } from '@/domain/models/scrapbox-page.ts';
 import { checkPageExist } from '@/infrastructure/adapters/scrapbox/checkPageExist.ts';
 import { postToScrapbox } from '@/infrastructure/adapters/scrapbox/postToScrapbox.ts';
@@ -47,7 +44,7 @@ export class ScrapboxRepositoryImpl implements ScrapboxRepository {
       const data = await getPage(title);
       if (!data) return null;
 
-      return ScrapboxPage.create({
+      return ScrapboxPage.reconstruct({
         projectName,
         title,
         content: data.lines.map((l) => l.text).join('\n'),
@@ -59,13 +56,18 @@ export class ScrapboxRepositoryImpl implements ScrapboxRepository {
     }
   }
 
-  async listPages(projectName: string): Promise<ScrapboxPageSummary[] | null> {
+  async listPages(projectName: string): Promise<ScrapboxPage[] | null> {
     const limit = 1000;
+    type ScrapboxPageListItem = {
+      title: string;
+      lines?: string[];
+      linesCount?: number;
+    };
     const fetchAllPages = async (
       skip: number,
-      pages: ScrapboxPageSummary[],
+      pages: ScrapboxPage[],
       totalCount: number | null,
-    ): Promise<ScrapboxPageSummary[]> => {
+    ): Promise<ScrapboxPage[]> => {
       const url = `https://scrapbox.io/api/pages/${projectName}?skip=${skip}&limit=${limit}`;
       const response = await fetch(url);
 
@@ -75,7 +77,23 @@ export class ScrapboxRepositoryImpl implements ScrapboxRepository {
 
       const data = await response.json();
       const resolvedTotalCount = totalCount ?? data.count;
-      const fetchedPages = (data.pages ?? []) as ScrapboxPageSummary[];
+      const fetchedItems = (data.pages ?? []) as ScrapboxPageListItem[];
+      const fetchedPages = fetchedItems.map((item) => {
+        const fallbackCount =
+          typeof item.linesCount === 'number'
+            ? Math.min(item.linesCount, 2)
+            : 0;
+        const lines =
+          item.lines ??
+          (fallbackCount > 0 ? Array(fallbackCount).fill('') : undefined);
+
+        return ScrapboxPage.reconstruct({
+          projectName,
+          title: item.title,
+          content: lines ? lines.join('\n') : '',
+          lines,
+        });
+      });
       const nextPages = pages.concat(fetchedPages);
       const nextSkip = skip + fetchedPages.length;
 
