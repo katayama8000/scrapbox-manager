@@ -7,7 +7,7 @@ on:
   pull_request:
 
 jobs:
-  fmt-lint:
+  fmt-lint-typecheck:
     runs-on: ubuntu-latest
 
     steps:
