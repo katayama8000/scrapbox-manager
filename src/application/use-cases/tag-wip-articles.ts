@@ -6,6 +6,37 @@ export class TagWipArticlesUseCase {
     private readonly projectName: string,
   ) {}
 
+  private canUseColor(): boolean {
+    return Deno.stdout.isTerminal() && !Deno.noColor;
+  }
+
+  private color(text: string, code: string): string {
+    if (!this.canUseColor()) {
+      return text;
+    }
+    return `\x1b[${code}m${text}\x1b[0m`;
+  }
+
+  private buildProgressBar(current: number, total: number): string {
+    const width = 24;
+    const ratio = total > 0 ? current / total : 0;
+    const filled = Math.min(width, Math.round(width * ratio));
+    const filledBar = this.color("█".repeat(filled), "32");
+    const emptyBar = this.color("░".repeat(width - filled), "90");
+    const percent = this.color(
+      `${Math.round(ratio * 100)}`.padStart(3, " "),
+      "36",
+    );
+    return `[${filledBar}${emptyBar}] ${percent}%`;
+  }
+
+  private truncateTitle(title: string, maxLength = 52): string {
+    if (title.length <= maxLength) {
+      return title;
+    }
+    return `${title.slice(0, maxLength - 1)}…`;
+  }
+
   async execute(): Promise<void> {
     const pages = await this.scrapboxRepository.listPages(this.projectName);
     if (!pages) {
@@ -14,18 +45,25 @@ export class TagWipArticlesUseCase {
     }
 
     const totalPages = pages.length;
-    console.log(`Found ${totalPages} pages. Starting to process...`);
+    console.log(this.color(`🚀 tagWip started: ${totalPages} pages`, "35"));
 
     let processedCount = 0;
+    let taggedCount = 0;
+    let alreadyTaggedCount = 0;
+    let nonEmptyCount = 0;
     for (const page of pages) {
       processedCount++;
       const title = page.getTitle();
-      console.log(`[${processedCount}/${totalPages}] Checking "${title}"...`);
+      const progress = this.buildProgressBar(processedCount, totalPages);
+      console.log(
+        `${progress} ${processedCount}/${totalPages} ${
+          this.truncateTitle(title)
+        }`,
+      );
 
       const isPotentiallyEmpty = (page.getLines()?.length ?? 0) <= 2;
 
       if (isPotentiallyEmpty) {
-        console.log(`  -> Page may be empty. Checking for #WIP tag...`);
         const v = await this.scrapboxRepository.getPage(
           this.projectName,
           title,
@@ -42,18 +80,34 @@ export class TagWipArticlesUseCase {
 
           if (isActuallyEmpty) {
             if (!content.includes("#WIP")) {
-              console.log(`  -> #WIP tag not found. Adding it.`);
-              const newPage = v.update({ content: "\n#WIP" });
+              const newContent = content + "\n#WIP";
+              const newPage = v.update({ content: newContent });
               await this.scrapboxRepository.post(newPage);
+              taggedCount++;
+              console.log(this.color("   ✍️  Added #WIP", "32"));
             } else {
-              console.log(`  -> #WIP tag already exists. Skipping.`);
+              alreadyTaggedCount++;
+              console.log(this.color("   ⏭️  Already tagged", "33"));
             }
           } else {
-            console.log(`  -> Page is not empty. Skipping.`);
+            nonEmptyCount++;
+            console.log(this.color("   📄 Not empty", "90"));
           }
+        } else {
+          nonEmptyCount++;
+          console.log(this.color("   ❓ Could not load page details", "31"));
         }
+      } else {
+        nonEmptyCount++;
       }
     }
-    console.log("Processing finished.");
+
+    console.log(this.color("✅ Processing finished.", "35"));
+    console.log(
+      this.color(
+        `Summary: tagged=${taggedCount}, alreadyTagged=${alreadyTaggedCount}, nonEmptyOrSkipped=${nonEmptyCount}`,
+        "36",
+      ),
+    );
   }
 }
