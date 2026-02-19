@@ -22,6 +22,21 @@ export class ScrapboxPage {
     return new ScrapboxPage(projectName, title, content, lines);
   }
 
+  update({
+    content,
+    lines,
+  }: {
+    content: string;
+    lines?: string[];
+  }): ScrapboxPage {
+    return new ScrapboxPage(
+      this.projectName,
+      this.title,
+      content,
+      lines ?? this.lines,
+    );
+  }
+
   notify(notification: IScrapboxPageNotification): void {
     notification
       .projectName(this.projectName)
@@ -32,7 +47,20 @@ export class ScrapboxPage {
     }
   }
 
+  // Getters
+  getProjectName(): string {
+    return this.projectName;
+  }
+
+  getTitle(): string {
+    return this.title;
+  }
+
   getContent(): string {
     return this.content;
+  }
+
+  getLines(): string[] | undefined {
+    return this.lines;
   }
 }

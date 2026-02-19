@@ -1,4 +1,4 @@
-# Scrapbox CLI
+# Scrapbox Manager
 
 This CLI allows you to control Scrapbox directly from your terminal.
 
@@ -7,8 +7,8 @@ This CLI allows you to control Scrapbox directly from your terminal.
 1. **Clone the Repository**
 
    ```bash
-   git clone https://github.com/katayama8000/scrapbox-cli
-   cd scrapbox-cli
+   git clone https://github.com/katayama8000/scrapbox-manager
+   cd scrapbox-manager
    ```
 
 2. **Install Deno**
