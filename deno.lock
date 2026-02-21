@@ -1,12 +1,12 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@katayama8000/cosense-client@*": "0.1.7",
-    "npm:@google/generative-ai@*": "0.24.1",
+    "jsr:@katayama8000/cosense-client@0.1.7": "0.1.7",
+    "npm:@google/generative-ai@0.24.1": "0.24.1",
     "npm:@types/node@*": "22.15.15",
-    "npm:dayjs@1.11.10": "1.11.10",
-    "npm:playwright-core@*": "1.45.3",
-    "npm:playwright@1.45.3": "1.45.3"
+    "npm:dayjs@1.11.19": "1.11.19",
+    "npm:playwright-core@*": "1.58.2",
+    "npm:playwright@1.58.2": "1.58.2"
   },
   "jsr": {
     "@katayama8000/cosense-client@0.1.7": {
@@ -23,20 +23,20 @@
         "undici-types"
       ]
     },
-    "dayjs@1.11.10": {
-      "integrity": "sha512-vjAczensTgRcqDERK0SR2XMwsF/tSvnvlv6VcF2GIhg6Sx4yOIt/irsr1RDJsKiIyBzJDpCoXiWWq28MqH2cnQ=="
+    "dayjs@1.11.19": {
+      "integrity": "sha512-t5EcLVS6QPBNqM2z8fakk/NKel+Xzshgt8FFKAn+qwlD1pzZWxh0nVCrvFK7ZDb6XucZeF9z8C7CBWTRIVApAw=="
     },
     "fsevents@2.3.2": {
       "integrity": "sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA==",
       "os": ["darwin"],
       "scripts": true
     },
-    "playwright-core@1.45.3": {
-      "integrity": "sha512-+ym0jNbcjikaOwwSZycFbwkWgfruWvYlJfThKYAlImbxUgdWFO2oW70ojPm4OpE4t6TAo2FY/smM+hpVTtkhDA==",
+    "playwright-core@1.58.2": {
+      "integrity": "sha512-yZkEtftgwS8CsfYo7nm0KE8jsvm6i/PTgVtB8DL726wNf6H2IMsDuxCpJj59KDaxCtSnrWan2AeDqM7JBaultg==",
       "bin": true
     },
-    "playwright@1.45.3": {
-      "integrity": "sha512-QhVaS+lpluxCaioejDZ95l4Y4jSFCsBvl2UZkpeXlzxmqS+aABr5c82YmfMHrL6x27nvrvykJAFpkzT2eWdJww==",
+    "playwright@1.58.2": {
+      "integrity": "sha512-vA30H8Nvkq/cPBnNw4Q8TWz1EJyqgpuinBcHET0YVJVFldr8JDNiU9LaWAE1KqSkRYazuaBhTpB5ZzShOezQ6A==",
       "dependencies": [
         "playwright-core"
       ],
@@ -90,10 +90,10 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@katayama8000/cosense-client@*",
-      "npm:@google/generative-ai@*",
-      "npm:dayjs@1.11.10",
-      "npm:playwright@1.45.3"
+      "jsr:@katayama8000/cosense-client@0.1.7",
+      "npm:@google/generative-ai@0.24.1",
+      "npm:dayjs@1.11.19",
+      "npm:playwright@1.58.2"
     ]
   }
 }

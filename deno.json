@@ -1,12 +1,12 @@
 {
   "imports": {
     "@/": "./src/",
-    "dayjs": "npm:dayjs@1.11.10",
-    "dayjs/plugin/timezone.js": "npm:dayjs@1.11.10/plugin/timezone.js",
-    "playwright": "npm:playwright@1.45.3",
+    "dayjs": "npm:dayjs@1.11.19",
+    "dayjs/plugin/timezone.js": "npm:dayjs@1.11.19/plugin/timezone.js",
+    "playwright": "npm:playwright@1.58.2",
     "dotenv/load.ts": "https://deno.land/std@0.224.0/dotenv/load.ts",
-    "@katayama8000/cosense-client": "jsr:@katayama8000/cosense-client",
-    "@google/generative-ai": "npm:@google/generative-ai",
+    "@katayama8000/cosense-client": "jsr:@katayama8000/cosense-client@0.1.7",
+    "@google/generative-ai": "npm:@google/generative-ai@0.24.1",
     "std/assert/mod.ts": "https://deno.land/std@0.224.0/assert/mod.ts"
   },
   "nodeModulesDir": "auto",
