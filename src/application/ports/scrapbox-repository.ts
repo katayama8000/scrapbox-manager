@@ -1,4 +1,4 @@
-import { ScrapboxPage } from "@/domain/models/scrapbox-page.ts";
+import { ScrapboxPage } from '@/domain/models/scrapbox-page.ts';
 
 export interface ScrapboxRepository {
   post(page: ScrapboxPage): Promise<void>;
@@ -7,4 +7,8 @@ export interface ScrapboxRepository {
   getPage(projectName: string, title: string): Promise<ScrapboxPage | null>;
   getPageCount(projectName: string): Promise<number | null>;
   listPages(projectName: string): Promise<ScrapboxPage[] | null>;
+  listPagesByPageTitle(
+    projectName: string,
+    pageTitles: string[],
+  ): Promise<ScrapboxPage[] | null>;
 }

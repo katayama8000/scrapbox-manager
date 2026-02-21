@@ -1,9 +1,9 @@
-import { ScrapboxRepository } from "@/application/ports/scrapbox-repository.ts";
-import { ScrapboxPage } from "@/domain/models/scrapbox-page.ts";
-import { checkPageExist } from "@/infrastructure/adapters/scrapbox/checkPageExist.ts";
-import { postToScrapbox } from "@/infrastructure/adapters/scrapbox/postToScrapbox.ts";
-import { updateScrapboxPage } from "@/infrastructure/adapters/scrapbox/updateScrapboxPage.ts";
-import { ScrapboxPayloadBuilder } from "./scrapbox-payload-builder.ts";
+import { ScrapboxRepository } from '@/application/ports/scrapbox-repository.ts';
+import { ScrapboxPage } from '@/domain/models/scrapbox-page.ts';
+import { checkPageExist } from '@/infrastructure/adapters/scrapbox/checkPageExist.ts';
+import { postToScrapbox } from '@/infrastructure/adapters/scrapbox/postToScrapbox.ts';
+import { updateScrapboxPage } from '@/infrastructure/adapters/scrapbox/updateScrapboxPage.ts';
+import { ScrapboxPayloadBuilder } from './scrapbox-payload-builder.ts';
 
 export class ScrapboxRepositoryImpl implements ScrapboxRepository {
   constructor(private readonly sessionId: string) {}
@@ -39,7 +39,7 @@ export class ScrapboxRepositoryImpl implements ScrapboxRepository {
   ): Promise<ScrapboxPage | null> {
     try {
       const { getPage } = (
-        await import("@katayama8000/cosense-client")
+        await import('@katayama8000/cosense-client')
       ).CosenseClient(projectName);
       const data = await getPage(title);
       if (!data) return null;
@@ -47,11 +47,11 @@ export class ScrapboxRepositoryImpl implements ScrapboxRepository {
       return ScrapboxPage.reconstruct({
         projectName,
         title,
-        content: data.lines.map((l) => l.text).join("\n"),
+        content: data.lines.map((l) => l.text).join('\n'),
         lines: data.lines.map((l) => l.text),
       });
     } catch (error) {
-      console.error("getPage error:", error);
+      console.error('getPage error:', error);
       return null;
     }
   }
@@ -68,8 +68,7 @@ export class ScrapboxRepositoryImpl implements ScrapboxRepository {
       pages: ScrapboxPage[],
       totalCount: number | null,
     ): Promise<ScrapboxPage[]> => {
-      const url =
-        `https://scrapbox.io/api/pages/${projectName}?skip=${skip}&limit=${limit}`;
+      const url = `https://scrapbox.io/api/pages/${projectName}?skip=${skip}&limit=${limit}`;
       const response = await fetch(url);
 
       if (!response.ok) {
@@ -80,16 +79,18 @@ export class ScrapboxRepositoryImpl implements ScrapboxRepository {
       const resolvedTotalCount = totalCount ?? data.count;
       const fetchedItems = (data.pages ?? []) as ScrapboxPageListItem[];
       const fetchedPages = fetchedItems.map((item) => {
-        const fallbackCount = typeof item.linesCount === "number"
-          ? Math.min(item.linesCount, 2)
-          : 0;
-        const lines = item.lines ??
-          (fallbackCount > 0 ? Array(fallbackCount).fill("") : undefined);
+        const fallbackCount =
+          typeof item.linesCount === 'number'
+            ? Math.min(item.linesCount, 2)
+            : 0;
+        const lines =
+          item.lines ??
+          (fallbackCount > 0 ? Array(fallbackCount).fill('') : undefined);
 
         return ScrapboxPage.reconstruct({
           projectName,
           title: item.title,
-          content: lines ? lines.join("\n") : "",
+          content: lines ? lines.join('\n') : '',
           lines,
         });
       });
@@ -106,7 +107,7 @@ export class ScrapboxRepositoryImpl implements ScrapboxRepository {
     try {
       return await fetchAllPages(0, [], null);
     } catch (error) {
-      console.error("Failed to fetch Scrapbox pages:", error);
+      console.error('Failed to fetch Scrapbox pages:', error);
       return null;
     }
   }
@@ -125,7 +126,22 @@ export class ScrapboxRepositoryImpl implements ScrapboxRepository {
       const pageCount: number = data.count;
       return pageCount;
     } catch (error) {
-      console.error("Failed to fetch Scrapbox pages:", error);
+      console.error('Failed to fetch Scrapbox pages:', error);
+      return null;
+    }
+  }
+
+  async listPagesByPageTitle(
+    projectName: string,
+    pageTitles: string[],
+  ): Promise<ScrapboxPage[] | null> {
+    try {
+      const pages = await Promise.all(
+        pageTitles.map((title) => this.getPage(projectName, title)),
+      );
+      return pages.filter((page): page is ScrapboxPage => page !== null);
+    } catch (error) {
+      console.error('Failed to fetch Scrapbox pages by title:', error);
       return null;
     }
   }
