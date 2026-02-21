@@ -7,4 +7,5 @@ export interface ScrapboxRepository {
   getPage(projectName: string, title: string): Promise<ScrapboxPage | null>;
   getPageCount(projectName: string): Promise<number | null>;
   listPages(projectName: string): Promise<ScrapboxPage[] | null>;
+  listWeeklyPages(projectName: string): Promise<ScrapboxPage[] | null>;
 }
