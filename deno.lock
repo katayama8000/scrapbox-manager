@@ -2,6 +2,7 @@
   "version": "5",
   "specifiers": {
     "jsr:@katayama8000/cosense-client@*": "0.1.7",
+    "npm:@google/generative-ai@*": "0.24.1",
     "npm:@types/node@*": "22.15.15",
     "npm:dayjs@1.11.10": "1.11.10",
     "npm:playwright-core@*": "1.45.3",
@@ -13,6 +14,9 @@
     }
   },
   "npm": {
+    "@google/generative-ai@0.24.1": {
+      "integrity": "sha512-MqO+MLfM6kjxcKoy0p1wRzG3b4ZZXtPI+z2IE26UogS2Cm/XHO+7gGRBh6gcJsOiIVoH93UwKvW4HdgiOZCy9Q=="
+    },
     "@types/node@22.15.15": {
       "integrity": "sha512-R5muMcZob3/Jjchn5LcO8jdKwSCbzqmPB6ruBxMcf9kbxtniZHP327s6C37iOfuw8mbKK3cAQa7sEl7afLrQ8A==",
       "dependencies": [
@@ -54,6 +58,7 @@
   "workspace": {
     "dependencies": [
       "jsr:@katayama8000/cosense-client@*",
+      "npm:@google/generative-ai@*",
       "npm:dayjs@1.11.10",
       "npm:playwright@1.45.3"
     ]
