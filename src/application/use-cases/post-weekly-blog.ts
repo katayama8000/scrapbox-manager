@@ -9,7 +9,8 @@ import { CalculateAverageSleepQualityUseCase } from "@/application/use-cases/cal
 
 import { ScrapboxPayloadBuilder } from "@/infrastructure/adapters/scrapbox/scrapbox-payload-builder.ts";
 
-const weeklyTemplate = {
+// export for testing
+export const weeklyTemplate = {
   buildText: (
     connectLink: string,
     avgWakeUpTime: number,
@@ -38,6 +39,13 @@ const weeklyTemplate = {
         "yyyy/M/d",
       )
     }`;
+  },
+  generateTitlesForThisWeek: (date: Date): string[] => {
+    const dayjs = DateProviderImpl.getDayjs();
+    const d = dayjs(date);
+    return Array.from({ length: 6 }).map((_, i) =>
+      formatDate(d.subtract(i + 1, "day"), "yyyy/M/d (ddd)")
+    );
   },
 };
 
