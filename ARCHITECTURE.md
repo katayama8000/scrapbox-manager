@@ -20,7 +20,7 @@ graph TD
 
     subgraph Infrastructure
         direction LR
-        Adapters["Adapters (Scrapbox API, Date Provider)"]
+        Adapters["Adapters (Scrapbox API, Date Provider, Generative AI Provider)"]
     end
 
     subgraph Application
@@ -58,7 +58,7 @@ boundaries (ports) for the outer layers.
 - `src/application/use-cases`: Implements the specific use cases of the
   application (e.g., `PostDailyBlogUseCase`).
 - `src/application/ports`: Defines the interfaces (ports) that are implemented
-  by the infrastructure layer (e.g., `ScrapboxRepository`, `DateProvider`).
+  by the infrastructure layer (e.g., `ScrapboxRepository`, `DateProvider`, `GenerativeAIProvider`).
 
 ### 3. Infrastructure Layer
 
@@ -68,7 +68,7 @@ in the application layer to connect the application to the outside world.
 
 - `src/infrastructure/adapters`: Contains the concrete implementations
   (adapters) of the ports. For example, `ScrapboxRepositoryImpl` implements the
-  `ScrapboxRepository` interface using an external library.
+  `ScrapboxRepository` interface using an external library, and `GenerativeAIProviderImpl` implements the `GenerativeAIProvider` interface.
 - `src/infrastructure/cli`: Contains the entry points for the command-line
   interface. These files are responsible for parsing command-line arguments and
   calling the appropriate use cases.

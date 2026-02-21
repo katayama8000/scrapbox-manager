@@ -35,7 +35,7 @@ export const weeklyTemplate = {
   generateTitle: (date: Date): string => {
     const dayjs = DateProviderImpl.getDayjs();
     const d = dayjs(date);
-    const startOfNextWeek = d.add(2, "day");
+    const startOfNextWeek = d.add(1, "day");
     const endOfNextWeek = startOfNextWeek.add(6, "day");
     return `${formatDate(startOfNextWeek, "yyyy/M/d")} ~ ${
       formatDate(
