@@ -129,4 +129,19 @@ export class ScrapboxRepositoryImpl implements ScrapboxRepository {
       return null;
     }
   }
+
+  async listPagesByPageTitle(
+    projectName: string,
+    pageTitles: string[],
+  ): Promise<ScrapboxPage[] | null> {
+    try {
+      const pages = await Promise.all(
+        pageTitles.map((title) => this.getPage(projectName, title)),
+      );
+      return pages.filter((page): page is ScrapboxPage => page !== null);
+    } catch (error) {
+      console.error("Failed to fetch Scrapbox pages by title:", error);
+      return null;
+    }
+  }
 }
