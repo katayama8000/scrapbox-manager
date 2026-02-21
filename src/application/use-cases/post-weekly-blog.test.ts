@@ -12,12 +12,15 @@ Deno.test("weeklyTemplate.buildText generates correct text", () => {
     "[**** Goals]\n" +
     "[**** Try something new]\n" +
     "[**** How was the week]\n" +
+    "[**** Summary]\n" +
+    "Summary of the week\n" +
     "#test-link\n" +
     "#weekly";
   const result = weeklyTemplate.buildText(
     connectLink,
     avgWakeUpTime,
     avgSleepQuality,
+    "Summary of the week",
   );
   assertEquals(result, expected);
 });

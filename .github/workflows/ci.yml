@@ -27,3 +27,6 @@ jobs:
 
       - name: Type check
         run: deno check **/*.ts
+
+      - name: Run tests
+        run: deno test

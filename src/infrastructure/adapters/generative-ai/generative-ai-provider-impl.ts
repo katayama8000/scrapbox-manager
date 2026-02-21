@@ -20,6 +20,8 @@ export class GenerativeAIProviderImpl implements GenerativeAIProvider {
   }
 
   async generateContentEn(prompt: string): Promise<string> {
-    return await this.generateContent(prompt, "gemini-2.5-flash-lite");
+    const v =
+      `generate a summary of the following content in English and follow scrapbox format:\n\n${prompt}`;
+    return await this.generateContent(v, "gemini-2.5-flash-lite");
   }
 }

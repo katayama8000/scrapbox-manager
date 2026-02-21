@@ -6,11 +6,17 @@ import { CalculateAverageWakeUpTimeUseCase } from "@/application/use-cases/calcu
 import { CalculateAverageSleepQualityUseCase } from "@/application/use-cases/calculate_average_sleep_quality.ts";
 import { ScrapboxRepositoryImpl } from "@/infrastructure/adapters/scrapbox/scrapbox-repository-impl.ts";
 import { DateProviderImpl } from "@/infrastructure/adapters/date/date-provider-impl.ts";
+import { GenerativeAIProviderImpl } from "@/infrastructure/adapters/generative-ai/generative-ai-provider-impl.ts";
 
 const main = async () => {
   const sessionId = Deno.env.get("SCRAPBOX_SID");
+  const geminiApiKey = Deno.env.get("GEMINI_API_KEY");
   if (!sessionId) {
     console.error("Please set the SCRAPBOX_SID environment variable.");
+    Deno.exit(1);
+  }
+  if (!geminiApiKey) {
+    console.error("Please set the GEMINI_API_KEY environment variable.");
     Deno.exit(1);
   }
 
@@ -20,15 +26,14 @@ const main = async () => {
   const calculateAverageWakeUpTimeUseCase =
     new CalculateAverageWakeUpTimeUseCase(scrapboxRepository, dateProvider);
   const calculateAverageSleepQualityUseCase =
-    new CalculateAverageSleepQualityUseCase(
-      scrapboxRepository,
-      dateProvider,
-    );
+    new CalculateAverageSleepQualityUseCase(scrapboxRepository, dateProvider);
+  const generativeAIProvider = new GenerativeAIProviderImpl(geminiApiKey);
   const postWeeklyBlogUseCase = new PostWeeklyBlogUseCase(
     scrapboxRepository,
     dateProvider,
     calculateAverageWakeUpTimeUseCase,
     calculateAverageSleepQualityUseCase,
+    generativeAIProvider,
   );
   try {
     await postWeeklyBlogUseCase.execute("katayama8000");
