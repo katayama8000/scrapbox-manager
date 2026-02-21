@@ -26,4 +26,4 @@ jobs:
         run: deno lint
 
       - name: Type check
-        run: deno task typeCheck
+        run: deno check **/*.ts
