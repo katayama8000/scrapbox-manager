@@ -8,12 +8,15 @@ import { CalculateAverageWakeUpTimeUseCase } from "@/application/use-cases/calcu
 import { CalculateAverageSleepQualityUseCase } from "@/application/use-cases/calculate_average_sleep_quality.ts";
 
 import { ScrapboxPayloadBuilder } from "@/infrastructure/adapters/scrapbox/scrapbox-payload-builder.ts";
+import { GenerativeAIProvider } from "../ports/generative-ai-provider.ts";
 
-const weeklyTemplate = {
+// export for testing
+export const weeklyTemplate = {
   buildText: (
     connectLink: string,
     avgWakeUpTime: number,
     avgSleepQuality: number,
+    summary: string,
   ): string => {
     return formatTextItems([
       { content: "Last week's average wake-up time", format: "medium" },
@@ -23,6 +26,8 @@ const weeklyTemplate = {
       { content: "Goals", format: "medium" },
       { content: "Try something new", format: "medium" },
       { content: "How was the week", format: "medium" },
+      { content: "Summary", format: "medium" },
+      { content: summary, format: "plain" },
       { content: connectLink, format: "link" },
       { content: "weekly", format: "link" },
     ]);
@@ -39,6 +44,13 @@ const weeklyTemplate = {
       )
     }`;
   },
+  generateTitlesForThisWeek: (date: Date): string[] => {
+    const dayjs = DateProviderImpl.getDayjs();
+    const d = dayjs(date);
+    return Array.from({ length: 6 }).map((_, i) =>
+      formatDate(d.subtract(i + 1, "day"), "yyyy/M/d (ddd)")
+    );
+  },
 };
 
 export class PostWeeklyBlogUseCase {
@@ -49,6 +61,7 @@ export class PostWeeklyBlogUseCase {
       CalculateAverageWakeUpTimeUseCase,
     private readonly calculateAverageSleepQualityUseCase:
       CalculateAverageSleepQualityUseCase,
+    private readonly generativeAIProvider: GenerativeAIProvider,
   ) {}
 
   async execute(projectName: string): Promise<void> {
@@ -60,10 +73,28 @@ export class PostWeeklyBlogUseCase {
     );
     const avgSleepQuality = await this.calculateAverageSleepQualityUseCase
       .execute(projectName);
+    const pageTitles = weeklyTemplate.generateTitlesForThisWeek(today);
+    const relatedPages = await this.scrapboxRepository.listPagesByPageTitle(
+      projectName,
+      pageTitles,
+    );
+    if (!relatedPages || relatedPages === null || relatedPages.length === 0) {
+      throw new Error("No related pages found for this week.");
+    }
+
+    const prompt = relatedPages
+      .map((page) => {
+        return `Title: ${page.getTitle()}\nContent:\n${page.getContent()}`;
+      })
+      .join("\n\n");
+
+    const summary = await this.generativeAIProvider.generateContentEn(prompt);
+
     const content = weeklyTemplate.buildText(
       connectLinkText,
       avgWakeUpTime,
       avgSleepQuality,
+      summary,
     );
 
     const page = ScrapboxPage.create({ projectName, title, content });
