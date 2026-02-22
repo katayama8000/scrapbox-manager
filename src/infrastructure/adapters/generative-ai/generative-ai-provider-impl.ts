@@ -23,7 +23,15 @@ export class GenerativeAIProviderImpl implements GenerativeAIProvider {
     const v = summaryTemplate(prompt);
     return await this.generateContent(v, "gemini-2.5-flash-lite");
   }
+
+  async generateEnglishQuestion(prompt: string): Promise<string> {
+    const v = questionTemplate(prompt);
+    return await this.generateContent(v, "gemini-2.5-flash-lite");
+  }
 }
 
 const summaryTemplate = (v: string) =>
   `You do not need to mention average wake-up time and average sleep quality, and I want to summarize it in one paragraph and you to tell me what I should focus on next. Please follow the scrapbox format using 「>」 in every line and write in English. The content is below:\n\n${v}`;
+
+const questionTemplate = (v: string) =>
+  `Please create 3 questions in English that make sentences based on the following content. The content is below:\n\n${v}`;
