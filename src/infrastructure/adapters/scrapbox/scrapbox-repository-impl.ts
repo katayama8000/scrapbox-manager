@@ -5,6 +5,31 @@ import { postToScrapbox } from "@/infrastructure/adapters/scrapbox/postToScrapbo
 import { updateScrapboxPage } from "@/infrastructure/adapters/scrapbox/updateScrapboxPage.ts";
 import { ScrapboxPayloadBuilder } from "./scrapbox-payload-builder.ts";
 
+type ScrapboxSearchPageSchema = {
+  id: string;
+  title: string;
+  words?: string[];
+  lines?: string[];
+};
+
+const toDomainScrapboxPage = (
+  projectName: string,
+  schema: ScrapboxSearchPageSchema,
+): ScrapboxPage | null => {
+  if (typeof schema.title !== "string" || schema.title.length === 0) {
+    return null;
+  }
+
+  const contentLines = schema.lines ?? [];
+
+  return ScrapboxPage.reconstruct({
+    projectName,
+    title: schema.title,
+    content: contentLines.join("\n"),
+    lines: schema.lines,
+  });
+};
+
 export class ScrapboxRepositoryImpl implements ScrapboxRepository {
   constructor(private readonly sessionId: string) {}
 
@@ -141,6 +166,29 @@ export class ScrapboxRepositoryImpl implements ScrapboxRepository {
       return pages.filter((page): page is ScrapboxPage => page !== null);
     } catch (error) {
       console.error("Failed to fetch Scrapbox pages by title:", error);
+      return null;
+    }
+  }
+
+  async listPagesByKeyword(
+    projectName: string,
+    keyword: string,
+  ): Promise<ScrapboxPage[] | null> {
+    try {
+      const url =
+        `https://scrapbox.io/api/pages/${projectName}/search/query?q=${keyword}`;
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        throw new Error(`HTTP Error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return ((data.pages ?? []) as ScrapboxSearchPageSchema[])
+        .map((item) => toDomainScrapboxPage(projectName, item))
+        .filter((page): page is ScrapboxPage => page !== null);
+    } catch (error) {
+      console.error("Failed to fetch Scrapbox pages by keyword:", error);
       return null;
     }
   }
