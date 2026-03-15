@@ -2,7 +2,6 @@ import { ScrapboxRepository } from "@/application/ports/scrapbox-repository.ts";
 import { DateProvider } from "@/application/ports/date-provider.ts";
 import { DateProviderImpl } from "@/infrastructure/adapters/date/date-provider-impl.ts";
 import { formatDate } from "@/infrastructure/adapters/formatters/formatDate.ts";
-import { ScrapboxPayloadBuilder } from "@/infrastructure/adapters/scrapbox/scrapbox-payload-builder.ts";
 
 export class CalculateAverageSleepQualityUseCase {
   constructor(
@@ -43,11 +42,10 @@ export class CalculateAverageSleepQualityUseCase {
       return null;
     }
 
-    const builder = new ScrapboxPayloadBuilder();
-    page.notify(builder);
-    const { lines } = builder.build();
+    const content = page.getContent();
+    const lines = content.length > 0 ? content.split("\n") : [];
 
-    if (!lines || lines.length === 0) {
+    if (lines.length === 0) {
       return null;
     }
 
