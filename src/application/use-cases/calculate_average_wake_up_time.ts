@@ -74,14 +74,22 @@ export class CalculateAverageWakeUpTimeUseCase {
 
   private calculateAverageWakeUpTime(times: string[]): number {
     const trimmedTimes = times.map((time) => time.trim());
-    if (!trimmedTimes.every((time) => /^\d{1,2}:\d{2}$/.test(time))) {
+    // ["8", "9:30", "7"] -> ["8:00", "9:30", "7:00"]
+    const normalizedTimes = trimmedTimes.map((time) => {
+      if (/^\d{1,2}$/.test(time)) {
+        return `${time}:00`;
+      }
+      return time;
+    });
+    if (!normalizedTimes.every((time) => /^\d{1,2}:\d{2}$/.test(time))) {
+      console.error("Invalid time format detected:", normalizedTimes);
       throw new Error("Invalid time format. Please use the format 'HH:mm'.");
     }
-    const totalMinutes = trimmedTimes.reduce(
+    const totalMinutes = normalizedTimes.reduce(
       (acc, time) => acc + this.parseMinToNum(time),
       0,
     );
-    const average = totalMinutes / trimmedTimes.length;
+    const average = totalMinutes / normalizedTimes.length;
     return Math.round(average * 1000) / 1000;
   }
 }

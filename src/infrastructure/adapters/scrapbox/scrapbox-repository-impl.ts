@@ -47,8 +47,10 @@ export class ScrapboxRepositoryImpl implements ScrapboxRepository {
       return ScrapboxPage.reconstruct({
         projectName,
         title,
-        content: data.lines.map((l) => l.text).join("\n"),
-        lines: data.lines.map((l) => l.text),
+        // deno-lint-ignore no-explicit-any
+        content: data.lines.map((l: { text: any }) => l.text).join("\n"),
+        // deno-lint-ignore no-explicit-any
+        lines: data.lines.map((l: { text: any }) => l.text),
       });
     } catch (error) {
       console.error("getPage error:", error);
