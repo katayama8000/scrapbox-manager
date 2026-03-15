@@ -3,10 +3,33 @@ import { ScrapboxPage } from "@/domain/models/scrapbox-page.ts";
 import { checkPageExist } from "@/infrastructure/adapters/scrapbox/checkPageExist.ts";
 import { postToScrapbox } from "@/infrastructure/adapters/scrapbox/postToScrapbox.ts";
 import { updateScrapboxPage } from "@/infrastructure/adapters/scrapbox/updateScrapboxPage.ts";
+import { parse } from "@progfay/scrapbox-parser";
 import { ScrapboxPayloadBuilder } from "./scrapbox-payload-builder.ts";
 
 export class ScrapboxRepositoryImpl implements ScrapboxRepository {
   constructor(private readonly sessionId: string) {}
+
+  private parseTextLine(pageText: string): string[] {
+    const parsedPage = parse(pageText, { hasTitle: true });
+    return parsedPage
+      .filter((block): block is Extract<typeof block, { type: "line" }> =>
+        block.type === "line"
+      )
+      .map((line) => {
+        const text = line.nodes
+          .map((node) => {
+            if ("raw" in node && typeof node.raw === "string") {
+              return node.raw;
+            }
+            if ("text" in node && typeof node.text === "string") {
+              return node.text;
+            }
+            return "";
+          })
+          .join("");
+        return `${" ".repeat(line.indent)}${text}`;
+      });
+  }
 
   async post(page: ScrapboxPage): Promise<void> {
     const builder = new ScrapboxPayloadBuilder();
@@ -38,19 +61,26 @@ export class ScrapboxRepositoryImpl implements ScrapboxRepository {
     title: string,
   ): Promise<ScrapboxPage | null> {
     try {
-      const { getPage } = (
-        await import("@katayama8000/cosense-client")
-      ).CosenseClient(projectName);
-      const data = await getPage(title);
-      if (!data) return null;
+      const encodedProjectName = encodeURIComponent(projectName);
+      const encodedTitle = encodeURIComponent(title);
+      const url =
+        `https://scrapbox.io/api/pages/${encodedProjectName}/${encodedTitle}/text`;
+      const response = await fetch(url);
+
+      if (!response.ok) {
+        if (response.status === 404) {
+          return null;
+        }
+        throw new Error(`HTTP Error! status: ${response.status}`);
+      }
+
+      const pageText = await response.text();
+      const content = this.parseTextLine(pageText).join("\n");
 
       return ScrapboxPage.reconstruct({
         projectName,
         title,
-        // deno-lint-ignore no-explicit-any
-        content: data.lines.map((l: { text: any }) => l.text).join("\n"),
-        // deno-lint-ignore no-explicit-any
-        lines: data.lines.map((l: { text: any }) => l.text),
+        content,
       });
     } catch (error) {
       console.error("getPage error:", error);
@@ -63,7 +93,6 @@ export class ScrapboxRepositoryImpl implements ScrapboxRepository {
     type ScrapboxPageListItem = {
       title: string;
       lines?: string[];
-      linesCount?: number;
     };
     const fetchAllPages = async (
       skip: number,
@@ -82,17 +111,10 @@ export class ScrapboxRepositoryImpl implements ScrapboxRepository {
       const resolvedTotalCount = totalCount ?? data.count;
       const fetchedItems = (data.pages ?? []) as ScrapboxPageListItem[];
       const fetchedPages = fetchedItems.map((item) => {
-        const fallbackCount = typeof item.linesCount === "number"
-          ? Math.min(item.linesCount, 2)
-          : 0;
-        const lines = item.lines ??
-          (fallbackCount > 0 ? Array(fallbackCount).fill("") : undefined);
-
         return ScrapboxPage.reconstruct({
           projectName,
           title: item.title,
-          content: lines ? lines.join("\n") : "",
-          lines,
+          content: item.lines?.join("\n") ?? "",
         });
       });
       const nextPages = pages.concat(fetchedPages);
