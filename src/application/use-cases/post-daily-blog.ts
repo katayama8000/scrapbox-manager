@@ -69,8 +69,12 @@ export class PostDailyBlogUseCase {
   }
 
   private getDailyNoteUrl(date: Date): string {
-    const dayjs = DateProviderImpl.getDayjs();
-    const dateText = formatDate(dayjs(date), "yyyy-MM-dd");
+    const dateText = new Intl.DateTimeFormat("en-CA", {
+      timeZone: "Asia/Tokyo",
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(date);
     return `https://github.com/katayama8000/obsidian-vault/blob/main/daily/${dateText}.md`;
   }
 }
