@@ -7,7 +7,7 @@ import { DateProviderImpl } from "@/infrastructure/adapters/date/date-provider-i
 import { ScrapboxPayloadBuilder } from "@/infrastructure/adapters/scrapbox/scrapbox-payload-builder.ts";
 
 const dailyTemplate = {
-  buildText: (connectLink: string): string => {
+  buildText: (connectLink: string, dailyNoteUrl: string): string => {
     return formatTextItems([
       { content: "Wake-up Time", format: "medium" },
       { content: "Today's Tasks", format: "medium" },
@@ -17,6 +17,7 @@ const dailyTemplate = {
       },
       { content: "Score sleep quality", format: "medium" },
       { content: "How was the day?", format: "medium" },
+      { content: dailyNoteUrl, format: "plain" },
       { content: connectLink, format: "link" },
       { content: "daily", format: "link" },
     ]);
@@ -35,7 +36,8 @@ export class PostDailyBlogUseCase {
     const today = this.dateProvider.now();
     const title = dailyTemplate.generateTitle(today);
     const connectLinkText = this.getConnectLinkText(today);
-    const content = dailyTemplate.buildText(connectLinkText);
+    const dailyNoteUrl = this.getDailyNoteUrl(today);
+    const content = dailyTemplate.buildText(connectLinkText, dailyNoteUrl);
 
     const page = ScrapboxPage.create({ projectName, title, content });
 
@@ -64,5 +66,11 @@ export class PostDailyBlogUseCase {
         "yyyy/M/d",
       )
     }`;
+  }
+
+  private getDailyNoteUrl(date: Date): string {
+    const dayjs = DateProviderImpl.getDayjs();
+    const dateText = formatDate(dayjs(date), "yyyy-MM-dd");
+    return `https://github.com/katayama8000/obsidian-vault/blob/main/daily/${dateText}.md`;
   }
 }
