@@ -25,9 +25,7 @@ export class GenerateEnglishQuestionUseCase {
     sourceTitles: string[],
   ): string {
     const sourceSection = sourceTitles.length > 0
-      ? `\n\n[**** Source Pages]\n${
-        sourceTitles.map((title) => `#${title}`).join("\n")
-      }`
+      ? `\n\n${sourceTitles.map((title) => `[${title}]`).join("\n")}`
       : "";
 
     return `[**** Generated English Questions]\n${question}${sourceSection}\n\n#English\n#generated-question`;
