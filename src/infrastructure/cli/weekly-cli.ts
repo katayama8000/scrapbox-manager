@@ -9,19 +9,14 @@ import { DateProviderImpl } from "@/infrastructure/adapters/date/date-provider-i
 import { GenerativeAIProviderImpl } from "@/infrastructure/adapters/generative-ai/generative-ai-provider-impl.ts";
 
 const main = async () => {
-  const sessionId = Deno.env.get("SCRAPBOX_SID");
   const geminiApiKey = Deno.env.get("GEMINI_API_KEY");
-  if (!sessionId) {
-    console.error("Please set the SCRAPBOX_SID environment variable.");
-    Deno.exit(1);
-  }
   if (!geminiApiKey) {
     console.warn(
       "GEMINI_API_KEY is not set. The weekly page will be created without an AI-generated summary.",
     );
   }
 
-  const scrapboxRepository = new ScrapboxRepositoryImpl(sessionId);
+  const scrapboxRepository = new ScrapboxRepositoryImpl();
   const dateProvider = new DateProviderImpl();
 
   const calculateAverageWakeUpTimeUseCase =

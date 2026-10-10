@@ -6,13 +6,7 @@ import { ScrapboxRepositoryImpl } from "@/infrastructure/adapters/scrapbox/scrap
 import { DateProviderImpl } from "@/infrastructure/adapters/date/date-provider-impl.ts";
 
 const main = async () => {
-  const sessionId = Deno.env.get("SCRAPBOX_SID");
-  if (!sessionId) {
-    console.error("Please set the SCRAPBOX_SID environment variable.");
-    Deno.exit(1);
-  }
-
-  const scrapboxRepository = new ScrapboxRepositoryImpl(sessionId);
+  const scrapboxRepository = new ScrapboxRepositoryImpl();
   const dateProvider = new DateProviderImpl();
 
   const postDailyBlogUseCase = new PostDailyBlogUseCase(

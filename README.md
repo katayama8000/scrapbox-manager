@@ -17,10 +17,16 @@ This CLI allows you to control Scrapbox directly from your terminal.
    [https://deno.land/manual/getting_started/installation](https://deno.land/manual/getting_started/installation)
 
 3. **Configure Environment**
-   - Copy `.env.dist` to `.env` and set your Scrapbox Session ID in `.env`:
+   - Copy `.env.dist` to `.env` and set required environment variables:
      ```bash
      cp .env.dist .env
      ```
+   - `COSENSE_PAT` (required for writing to Cosense)
+     - Issue this token from your own Cosense account settings.
+     - This CLI only reads the token from environment variables. It never
+       fetches or provisions tokens automatically.
+   - `GEMINI_API_KEY` (required for AI-generated weekly/english question
+     features)
 
 4. **Run Commands**
    - Deno automatically downloads dependencies on the first run.
@@ -35,10 +41,12 @@ This CLI allows you to control Scrapbox directly from your terminal.
 
 5. **Run on GitHub Actions**
    - set secrets in your repository settings:
-     - `SCRAPBOX_SID`
+     - `COSENSE_PAT`
      - `DISCORD_WEBHOOK`
      - `BACKLOG_API_KEY`
-   - Enable GitHub Actions in your repository.
+
+- `COSENSE_PAT` must be created and managed by repository maintainers.
+- Enable GitHub Actions in your repository.
 
 ## Architecture
 

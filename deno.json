@@ -4,14 +4,17 @@
     "@progfay/scrapbox-parser": "jsr:@progfay/scrapbox-parser@^10.1.1",
     "dayjs": "npm:dayjs@1.11.19",
     "dayjs/plugin/timezone.js": "npm:dayjs@1.11.19/plugin/timezone.js",
-    "playwright": "npm:playwright@1.58.2",
     "dotenv/load.ts": "https://deno.land/std@0.224.0/dotenv/load.ts",
     "@google/generative-ai": "npm:@google/generative-ai@0.24.1",
     "std/assert/mod.ts": "https://deno.land/std@0.224.0/assert/mod.ts"
   },
   "nodeModulesDir": "auto",
   "compilerOptions": {
-    "lib": ["ESNext", "DOM", "deno.ns"],
+    "lib": [
+      "ESNext",
+      "DOM",
+      "deno.ns"
+    ],
     "strict": true
   },
   "tasks": {

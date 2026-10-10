@@ -31,7 +31,7 @@ const toDomainScrapboxPage = (
 };
 
 export class ScrapboxRepositoryImpl implements ScrapboxRepository {
-  constructor(private readonly sessionId: string) {}
+  constructor() {}
 
   private parseCreatedAt(created?: number): Date | null {
     if (typeof created !== "number" || Number.isNaN(created)) {
@@ -77,9 +77,9 @@ export class ScrapboxRepositoryImpl implements ScrapboxRepository {
 
     const pageExists = await this.exists(projectName, title);
     if (pageExists) {
-      await updateScrapboxPage(this.sessionId, projectName, title, content);
+      await updateScrapboxPage(projectName, title, content);
     } else {
-      await postToScrapbox(this.sessionId, projectName, title, content);
+      await postToScrapbox(projectName, title, content);
     }
   }
 
@@ -88,7 +88,7 @@ export class ScrapboxRepositoryImpl implements ScrapboxRepository {
     page.notify(builder);
     const { projectName, title, content } = builder.build();
 
-    await updateScrapboxPage(this.sessionId, projectName, title, content);
+    await updateScrapboxPage(projectName, title, content);
   }
 
   async exists(projectName: string, title: string): Promise<boolean> {
