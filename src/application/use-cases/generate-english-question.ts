@@ -28,7 +28,7 @@ export class GenerateEnglishQuestionUseCase {
       ? `\n\n${sourceTitles.map((title) => `[${title}]`).join("\n")}`
       : "";
 
-    return `[**** Generated English Questions]\n${question}${sourceSection}\n\n#English\n#generated-question`;
+    return `[**** Generated English Questions]\n${question}${sourceSection}\n\n#generated-english-question`;
   }
 
   async execute(): Promise<{ title: string; question: string }> {
