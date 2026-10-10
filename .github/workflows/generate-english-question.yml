@@ -1,0 +1,16 @@
+name: Generate English Question CLI
+
+on:
+  schedule:
+    # every 2 days at 9:00 JST (UTC+9)
+    - cron: "0 0 */2 * *"
+  workflow_dispatch:
+
+jobs:
+  call-reusable:
+    uses: ./.github/workflows/cli_runner.yml
+    with:
+      cli_command: generateEnglishQuestion
+      schedule_title: "Generate English Question CLI"
+      color: "#1E90FF"
+    secrets: inherit
