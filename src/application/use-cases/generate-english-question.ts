@@ -1,5 +1,6 @@
 import { ScrapboxRepository } from "@/application/ports/scrapbox-repository.ts";
 import { GenerativeAIProvider } from "@/application/ports/generative-ai-provider.ts";
+import { ScrapboxPage } from "@/domain/models/scrapbox-page.ts";
 
 export class GenerateEnglishQuestionUseCase {
   constructor(
@@ -8,7 +9,29 @@ export class GenerateEnglishQuestionUseCase {
     private projectName: string,
   ) {}
 
-  async execute(): Promise<string | null> {
+  private formatDateForTitle(date: Date): string {
+    const yyyy = String(date.getFullYear());
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    const hh = String(date.getHours()).padStart(2, "0");
+    const min = String(date.getMinutes()).padStart(2, "0");
+    return `${yyyy}/${mm}/${dd} ${hh}:${min}`;
+  }
+
+  private buildQuestionPageContent(
+    question: string,
+    sourceTitles: string[],
+  ): string {
+    const sourceSection = sourceTitles.length > 0
+      ? `\n\n[**** Source Pages]\n${
+        sourceTitles.map((title) => `#${title}`).join("\n")
+      }`
+      : "";
+
+    return `[**** Generated English Questions]\n${question}${sourceSection}\n\n#English\n#generated-question`;
+  }
+
+  async execute(): Promise<{ title: string; question: string }> {
     const keyword = "English";
     const pages = await this.scrapboxRepository.listPagesByKeyword(
       this.projectName,
@@ -28,6 +51,10 @@ export class GenerateEnglishQuestionUseCase {
     const selectedPagesTitles = englishPagesTitles
       .sort(() => 0.5 - Math.random())
       .slice(0, 3);
+
+    if (selectedPagesTitles.length === 0) {
+      throw new Error(`No pages include "#${keyword}" in content.`);
+    }
 
     // fetch pages by title
     const selectedPages = await this.scrapboxRepository.listPagesByPageTitle(
@@ -55,6 +82,19 @@ export class GenerateEnglishQuestionUseCase {
 
     console.log("generated Q", generatedQuestion);
 
-    return generatedQuestion;
+    const title = `English Questions ${this.formatDateForTitle(new Date())}`;
+    const content = this.buildQuestionPageContent(
+      generatedQuestion,
+      selectedPagesTitles,
+    );
+
+    const page = ScrapboxPage.create({
+      projectName: this.projectName,
+      title,
+      content,
+    });
+    await this.scrapboxRepository.post(page);
+
+    return { title, question: generatedQuestion };
   }
 }

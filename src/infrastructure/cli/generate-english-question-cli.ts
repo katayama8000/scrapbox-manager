@@ -29,15 +29,12 @@ const main = async () => {
   );
 
   try {
-    const question = await generateEnglishQuestionUseCase.execute();
-
-    if (question) {
-      console.log("Generated English Question:");
-    } else {
-      console.log(
-        "No pages found for the given keyword, or question could not be generated.",
-      );
-    }
+    const { title, question } = await generateEnglishQuestionUseCase.execute();
+    console.log(
+      `Successfully posted generated questions to Scrapbox: ${title}`,
+    );
+    console.log("Generated English Question:");
+    console.log(question);
   } catch (error) {
     console.error("Failed to generate English question:", error);
     Deno.exit(1);

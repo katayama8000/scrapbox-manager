@@ -27,7 +27,6 @@ const toDomainScrapboxPage = (
     projectName,
     title: schema.title,
     content: contentLines.join("\n"),
-    lines: schema.lines,
   });
 };
 
