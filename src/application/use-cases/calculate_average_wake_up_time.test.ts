@@ -18,6 +18,7 @@ const createUseCase = () => {
     getPageCount: async () => null,
     listPages: async () => null,
     listPagesByPageTitle: async () => null,
+    listPagesByKeyword: async () => null,
   };
 
   const dateProvider: DateProvider = {
