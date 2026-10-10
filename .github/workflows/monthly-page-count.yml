@@ -1,4 +1,4 @@
-name: Monthly Page Count
+name: Monthly Page Count CLI
 
 on:
   schedule:
@@ -10,7 +10,7 @@ jobs:
   call-reusable:
     uses: ./.github/workflows/cli_runner.yml
     with:
-      cli_command: countAllPages
+      cli_command: count-pages
       schedule_title: "Monthly Page Count"
       color: "#00FF00"
     secrets: inherit
