@@ -5,49 +5,43 @@ export class ScrapboxPage {
     private readonly projectName: string,
     private readonly title: string,
     private readonly content: string,
-    private readonly lines?: string[],
+    private readonly createdAt: Date | null,
   ) {}
 
   static create({
     projectName,
     title,
     content,
-    lines,
+    createdAt,
   }: {
     projectName: string;
     title: string;
     content: string;
-    lines?: string[];
+    createdAt?: Date | null;
   }): ScrapboxPage {
-    return new ScrapboxPage(projectName, title, content, lines);
+    return new ScrapboxPage(projectName, title, content, createdAt ?? null);
   }
 
   static reconstruct({
     projectName,
     title,
     content,
-    lines,
+    createdAt,
   }: {
     projectName: string;
     title: string;
     content: string;
-    lines?: string[];
+    createdAt?: Date | null;
   }): ScrapboxPage {
-    return new ScrapboxPage(projectName, title, content, lines);
+    return new ScrapboxPage(projectName, title, content, createdAt ?? null);
   }
 
-  update({
-    content,
-    lines,
-  }: {
-    content: string;
-    lines?: string[];
-  }): ScrapboxPage {
+  update({ content }: { content: string }): ScrapboxPage {
     return new ScrapboxPage(
       this.projectName,
       this.title,
       content,
-      lines ?? this.lines,
+      this.createdAt,
     );
   }
 
@@ -56,9 +50,6 @@ export class ScrapboxPage {
       .projectName(this.projectName)
       .title(this.title)
       .content(this.content);
-    if (this.lines) {
-      notification.lines(this.lines);
-    }
   }
 
   // Getters
@@ -74,7 +65,7 @@ export class ScrapboxPage {
     return this.content;
   }
 
-  getLines(): string[] | undefined {
-    return this.lines;
+  getCreatedAt(): Date | null {
+    return this.createdAt;
   }
 }

@@ -2,7 +2,6 @@ import { ScrapboxRepository } from "@/application/ports/scrapbox-repository.ts";
 import { DateProvider } from "@/application/ports/date-provider.ts";
 import { DateProviderImpl } from "@/infrastructure/adapters/date/date-provider-impl.ts";
 import { formatDate } from "@/infrastructure/adapters/formatters/formatDate.ts";
-import { ScrapboxPayloadBuilder } from "@/infrastructure/adapters/scrapbox/scrapbox-payload-builder.ts";
 
 export class CalculateAverageWakeUpTimeUseCase {
   constructor(
@@ -35,15 +34,16 @@ export class CalculateAverageWakeUpTimeUseCase {
     pageTitle: string,
   ): Promise<string | null> {
     const page = await this.scrapboxRepository.getPage(projectName, pageTitle);
+    console.log(`Fetched wake-up time for ${pageTitle}:`, page);
+
     if (!page) {
       return null;
     }
 
-    const builder = new ScrapboxPayloadBuilder();
-    page.notify(builder);
-    const { lines } = builder.build();
+    const content = page.getContent();
+    const lines = content.length > 0 ? content.split("\n") : [];
 
-    if (!lines || lines.length === 0) {
+    if (lines.length === 0) {
       return null;
     }
 
@@ -74,14 +74,22 @@ export class CalculateAverageWakeUpTimeUseCase {
 
   private calculateAverageWakeUpTime(times: string[]): number {
     const trimmedTimes = times.map((time) => time.trim());
-    if (!trimmedTimes.every((time) => /^\d{1,2}:\d{2}$/.test(time))) {
+    // ["8", "9:30", "7"] -> ["8:00", "9:30", "7:00"]
+    const normalizedTimes = trimmedTimes.map((time) => {
+      if (/^\d{1,2}$/.test(time)) {
+        return `${time}:00`;
+      }
+      return time;
+    });
+    if (!normalizedTimes.every((time) => /^\d{1,2}:\d{2}$/.test(time))) {
+      console.error("Invalid time format detected:", normalizedTimes);
       throw new Error("Invalid time format. Please use the format 'HH:mm'.");
     }
-    const totalMinutes = trimmedTimes.reduce(
+    const totalMinutes = normalizedTimes.reduce(
       (acc, time) => acc + this.parseMinToNum(time),
       0,
     );
-    const average = totalMinutes / trimmedTimes.length;
+    const average = totalMinutes / normalizedTimes.length;
     return Math.round(average * 1000) / 1000;
   }
 }

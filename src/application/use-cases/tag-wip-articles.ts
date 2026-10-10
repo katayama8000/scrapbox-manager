@@ -6,6 +6,10 @@ export class TagWipArticlesUseCase {
     private readonly projectName: string,
   ) {}
 
+  private splitContent(content: string): string[] {
+    return content.length > 0 ? content.split("\n") : [];
+  }
+
   private canUseColor(): boolean {
     return Deno.stdout.isTerminal() && !Deno.noColor;
   }
@@ -61,7 +65,8 @@ export class TagWipArticlesUseCase {
         }`,
       );
 
-      const isPotentiallyEmpty = (page.getLines()?.length ?? 0) <= 2;
+      const isPotentiallyEmpty =
+        this.splitContent(page.getContent()).length <= 2;
 
       if (isPotentiallyEmpty) {
         const v = await this.scrapboxRepository.getPage(
@@ -70,13 +75,13 @@ export class TagWipArticlesUseCase {
         );
 
         if (v) {
-          const lines = v.getLines() ?? [];
+          const content = v.getContent();
+          const lines = this.splitContent(content);
           const bodyLines = lines
             .slice(1)
             .map((line) => line.trim())
             .filter((line) => line.length > 0);
           const isActuallyEmpty = bodyLines.length === 0;
-          const content = v.getContent();
 
           if (isActuallyEmpty) {
             if (!content.includes("#WIP")) {

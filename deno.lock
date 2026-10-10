@@ -1,7 +1,7 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@katayama8000/cosense-client@0.1.7": "0.1.7",
+    "jsr:@progfay/scrapbox-parser@^10.1.1": "10.1.1",
     "npm:@google/generative-ai@0.24.1": "0.24.1",
     "npm:@types/node@*": "22.15.15",
     "npm:dayjs@1.11.19": "1.11.19",
@@ -9,8 +9,8 @@
     "npm:playwright@1.58.2": "1.58.2"
   },
   "jsr": {
-    "@katayama8000/cosense-client@0.1.7": {
-      "integrity": "c5ad9371c33cef57d6be4cb7509bccf52450a97be29a562dabf924815bfd008c"
+    "@progfay/scrapbox-parser@10.1.1": {
+      "integrity": "3ce4a99e49213055bf351f3539bc2bb26ab4bfaa83c77d1d782a6d740cd779e4"
     }
   },
   "npm": {
@@ -90,7 +90,7 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@katayama8000/cosense-client@0.1.7",
+      "jsr:@progfay/scrapbox-parser@^10.1.1",
       "npm:@google/generative-ai@0.24.1",
       "npm:dayjs@1.11.19",
       "npm:playwright@1.58.2"
