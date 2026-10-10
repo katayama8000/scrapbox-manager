@@ -32,34 +32,26 @@ const createPostedPage = async (now: Date): Promise<ScrapboxPage> => {
   return postedPages[0];
 };
 
-Deno.test("PostDailyBlogUseCase.execute uses JST date for daily note URL", async () => {
+Deno.test("PostDailyBlogUseCase.execute includes weekly connect link", async () => {
   const postedPage = await createPostedPage(
     new Date("2026-09-29T15:30:00Z"), // 2026-09-30 00:30 JST
   );
-  assertStringIncludes(
-    postedPage.getContent(),
-    "https://github.com/katayama8000/obsidian-vault/blob/main/daily/2026-09-30.md",
-  );
+
+  assertStringIncludes(postedPage.getContent(), "#2026/09/28~2026/10/04");
 });
 
-Deno.test("PostDailyBlogUseCase.execute zero-pads day for 10/1", async () => {
+Deno.test("PostDailyBlogUseCase.execute handles Sunday as week end", async () => {
   const postedPage = await createPostedPage(
-    new Date("2026-09-30T15:30:00Z"), // 2026-10-01 00:30 JST
+    new Date("2026-10-03T15:30:00Z"), // 2026-10-04 00:30 JST (Sunday)
   );
 
-  assertStringIncludes(
-    postedPage.getContent(),
-    "https://github.com/katayama8000/obsidian-vault/blob/main/daily/2026-10-01.md",
-  );
+  assertStringIncludes(postedPage.getContent(), "#2026/09/28~2026/10/04");
 });
 
-Deno.test("PostDailyBlogUseCase.execute zero-pads month and day for 2/2", async () => {
+Deno.test("PostDailyBlogUseCase.execute includes daily tag", async () => {
   const postedPage = await createPostedPage(
     new Date("2026-02-01T15:30:00Z"), // 2026-02-02 00:30 JST
   );
 
-  assertStringIncludes(
-    postedPage.getContent(),
-    "https://github.com/katayama8000/obsidian-vault/blob/main/daily/2026-02-02.md",
-  );
+  assertStringIncludes(postedPage.getContent(), "#daily");
 });
