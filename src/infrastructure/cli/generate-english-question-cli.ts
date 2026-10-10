@@ -7,12 +7,7 @@ import { GenerativeAIProviderImpl } from "@/infrastructure/adapters/generative-a
 import { DateProviderImpl } from "@/infrastructure/adapters/date/date-provider-impl.ts";
 
 const main = async () => {
-  const sessionId = Deno.env.get("SCRAPBOX_SID");
   const geminiApiKey = Deno.env.get("GEMINI_API_KEY");
-  if (!sessionId) {
-    console.error("Please set the SCRAPBOX_SID environment variable.");
-    Deno.exit(1);
-  }
   if (!geminiApiKey) {
     console.error("Please set the GEMINI_API_KEY environment variable.");
     Deno.exit(1);
@@ -20,7 +15,7 @@ const main = async () => {
 
   const projectName = "katayama8000";
 
-  const scrapboxRepository = new ScrapboxRepositoryImpl(sessionId);
+  const scrapboxRepository = new ScrapboxRepositoryImpl();
   const generativeAiProvider = new GenerativeAIProviderImpl(geminiApiKey);
   const dateProvider = new DateProviderImpl();
 
