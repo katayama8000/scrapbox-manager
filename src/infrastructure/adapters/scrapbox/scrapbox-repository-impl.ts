@@ -215,8 +215,9 @@ export class ScrapboxRepositoryImpl implements ScrapboxRepository {
     keyword: string,
   ): Promise<ScrapboxPage[] | null> {
     try {
+      const encodedKeyword = encodeURIComponent(keyword);
       const url =
-        `https://scrapbox.io/api/pages/${projectName}/search/query?q=${keyword}`;
+        `https://scrapbox.io/api/pages/${projectName}/search/query?q=${encodedKeyword}`;
       const response = await fetch(url);
 
       if (!response.ok) {

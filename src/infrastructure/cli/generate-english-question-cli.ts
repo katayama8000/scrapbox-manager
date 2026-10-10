@@ -4,6 +4,7 @@ import "dotenv/load.ts";
 import { GenerateEnglishQuestionUseCase } from "@/application/use-cases/generate-english-question.ts";
 import { ScrapboxRepositoryImpl } from "@/infrastructure/adapters/scrapbox/scrapbox-repository-impl.ts";
 import { GenerativeAIProviderImpl } from "@/infrastructure/adapters/generative-ai/generative-ai-provider-impl.ts";
+import { DateProviderImpl } from "@/infrastructure/adapters/date/date-provider-impl.ts";
 
 const main = async () => {
   const sessionId = Deno.env.get("SCRAPBOX_SID");
@@ -21,10 +22,12 @@ const main = async () => {
 
   const scrapboxRepository = new ScrapboxRepositoryImpl(sessionId);
   const generativeAiProvider = new GenerativeAIProviderImpl(geminiApiKey);
+  const dateProvider = new DateProviderImpl();
 
   const generateEnglishQuestionUseCase = new GenerateEnglishQuestionUseCase(
     scrapboxRepository,
     generativeAiProvider,
+    dateProvider,
     projectName,
   );
 

@@ -1,11 +1,13 @@
 import { ScrapboxRepository } from "@/application/ports/scrapbox-repository.ts";
 import { GenerativeAIProvider } from "@/application/ports/generative-ai-provider.ts";
+import { DateProvider } from "@/application/ports/date-provider.ts";
 import { ScrapboxPage } from "@/domain/models/scrapbox-page.ts";
 
 export class GenerateEnglishQuestionUseCase {
   constructor(
     private scrapboxRepository: ScrapboxRepository,
     private generativeAiProvider: GenerativeAIProvider,
+    private dateProvider: DateProvider,
     private projectName: string,
   ) {}
 
@@ -74,15 +76,13 @@ export class GenerateEnglishQuestionUseCase {
       )
       .join("\n\n---\n\n");
 
-    console.log("generating Q ...");
-
     // Generate the English question
     const generatedQuestion = await this.generativeAiProvider
       .generateEnglishQuestion(prompt);
 
-    console.log("generated Q", generatedQuestion);
-
-    const title = `English Questions ${this.formatDateForTitle(new Date())}`;
+    const title = `English Questions ${
+      this.formatDateForTitle(this.dateProvider.now())
+    }`;
     const content = this.buildQuestionPageContent(
       generatedQuestion,
       selectedPagesTitles,
