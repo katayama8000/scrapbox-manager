@@ -11,4 +11,8 @@ export interface ScrapboxRepository {
     projectName: string,
     pageTitles: string[],
   ): Promise<ScrapboxPage[] | null>;
+  listPagesByKeyword(
+    projectName: string,
+    keyword: string,
+  ): Promise<ScrapboxPage[] | null>;
 }

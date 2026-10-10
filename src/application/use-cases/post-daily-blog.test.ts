@@ -18,6 +18,7 @@ const createPostedPage = async (now: Date): Promise<ScrapboxPage> => {
     getPageCount: () => Promise.resolve(null),
     listPages: () => Promise.resolve(null),
     listPagesByPageTitle: () => Promise.resolve(null),
+    listPagesByKeyword: () => Promise.resolve(null),
   };
 
   const dateProvider: DateProvider = {

@@ -21,6 +21,7 @@
     "wake": "deno run --allow-net --allow-env --allow-read --allow-run --allow-sys --allow-write src/infrastructure/cli/wake-cli.ts",
     "countAllPages": "deno run --allow-net --allow-env --allow-read --allow-run --allow-sys --allow-write src/infrastructure/cli/count-pages-cli.ts",
     "tagWip": "deno run --allow-net --allow-env --allow-read --allow-run --allow-sys --allow-write src/infrastructure/cli/tag-wip-articles-cli.ts",
+    "generateEnglishQuestion": "deno run --allow-net --allow-env --allow-read --allow-run --allow-sys --allow-write src/infrastructure/cli/generate-english-question-cli.ts",
     "pass": "deno lint && deno fmt && deno check **/*.ts && deno test"
   }
 }
