@@ -4,6 +4,8 @@ type CommandResult = {
   stderr: string;
 };
 
+import { checkPageExist } from "./checkPageExist.ts";
+
 type CosenseReadPageLine = {
   id?: string;
   text?: string;
@@ -73,6 +75,8 @@ const parsePreviewId = (stdout: string): string => {
 const submitPreview = async (
   projectUrl: string,
   previewId: string,
+  projectName?: string,
+  title?: string,
 ): Promise<void> => {
   const submitResult = await runCosenseCli([
     "submitEdit",
@@ -81,10 +85,25 @@ const submitPreview = async (
   ]);
 
   if (submitResult.code !== 0) {
+    const output = submitResult.stderr || submitResult.stdout;
+    const isMissingPageField =
+      output.includes("submit response missing page field") &&
+      output.includes("commitId:");
+
+    // cosense-cli sometimes returns a non-zero exit code even though the page
+    // is actually created. If we can verify the page exists, treat it as success.
+    if (isMissingPageField && projectName && title) {
+      const exists = await checkPageExist(projectName, title);
+      if (exists) {
+        console.warn(
+          `cosense submitEdit reported a missing page field, but page exists: ${title}`,
+        );
+        return;
+      }
+    }
+
     throw new Error(
-      `cosense submitEdit failed: ${
-        submitResult.stderr || submitResult.stdout
-      }`,
+      `cosense submitEdit failed: ${output}`,
     );
   }
 };
@@ -113,7 +132,7 @@ export const createPageWithCosenseCli = async (
   }
 
   const previewId = parsePreviewId(previewResult.stdout);
-  await submitPreview(projectUrl, previewId);
+  await submitPreview(projectUrl, previewId, projectName, title);
 };
 
 export const updatePageWithCosenseCli = async (
@@ -170,5 +189,5 @@ export const updatePageWithCosenseCli = async (
   }
 
   const previewId = parsePreviewId(previewResult.stdout);
-  await submitPreview(projectUrl, previewId);
+  await submitPreview(projectUrl, previewId, projectName, title);
 };
