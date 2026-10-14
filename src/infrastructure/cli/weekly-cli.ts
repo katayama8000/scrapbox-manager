@@ -6,15 +6,37 @@ import { CalculateAverageWakeUpTimeUseCase } from "@/application/use-cases/calcu
 import { CalculateAverageSleepQualityUseCase } from "@/application/use-cases/calculate_average_sleep_quality.ts";
 import { ScrapboxRepositoryImpl } from "@/infrastructure/adapters/scrapbox/scrapbox-repository-impl.ts";
 import { DateProviderImpl } from "@/infrastructure/adapters/date/date-provider-impl.ts";
-import { GenerativeAIProviderImpl } from "@/infrastructure/adapters/generative-ai/generative-ai-provider-impl.ts";
+import { GenerativeAIProvider } from "@/application/ports/generative-ai-provider.ts";
+import {
+  createGenerativeAIProviderFromEnv,
+  getGenerativeAIBackendFromEnv,
+} from "@/infrastructure/adapters/generative-ai/generative-ai-provider-factory.ts";
 
 const main = async () => {
-  const geminiApiKey = Deno.env.get("GEMINI_API_KEY");
-  if (!geminiApiKey) {
+  let generativeAIProvider: GenerativeAIProvider;
+  try {
+    generativeAIProvider = createGenerativeAIProviderFromEnv();
+  } catch (error) {
+    const detail = error instanceof Error ? error.message : String(error);
     console.warn(
-      "GEMINI_API_KEY is not set. The weekly page will be created without an AI-generated summary.",
+      `Generative AI is not configured (${detail}). The weekly page will be created without an AI-generated summary.`,
     );
+
+    generativeAIProvider = {
+      generateContentJa(): Promise<string> {
+        throw new Error("Generative AI is not configured.");
+      },
+      generateContentEn(): Promise<string> {
+        throw new Error("Generative AI is not configured.");
+      },
+      generateEnglishQuestion(): Promise<string> {
+        throw new Error("Generative AI is not configured.");
+      },
+    };
   }
+
+  const selectedBackend = getGenerativeAIBackendFromEnv();
+  console.log(`Using AI provider: ${selectedBackend}`);
 
   const scrapboxRepository = new ScrapboxRepositoryImpl();
   const dateProvider = new DateProviderImpl();
@@ -23,7 +45,6 @@ const main = async () => {
     new CalculateAverageWakeUpTimeUseCase(scrapboxRepository, dateProvider);
   const calculateAverageSleepQualityUseCase =
     new CalculateAverageSleepQualityUseCase(scrapboxRepository, dateProvider);
-  const generativeAIProvider = new GenerativeAIProviderImpl(geminiApiKey ?? "");
   const postWeeklyBlogUseCase = new PostWeeklyBlogUseCase(
     scrapboxRepository,
     dateProvider,
