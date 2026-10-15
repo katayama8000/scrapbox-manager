@@ -2,24 +2,21 @@
 
 import "dotenv/load.ts";
 import { GenerateEnglishQuestionUseCase } from "@/application/use-cases/generate-english-question.ts";
-import { GenerativeAIProvider } from "@/application/ports/generative-ai-provider.ts";
 import { ScrapboxRepositoryImpl } from "@/infrastructure/adapters/scrapbox/scrapbox-repository-impl.ts";
+import { GenerativeAIProviderImpl } from "@/infrastructure/adapters/generative-ai/generative-ai-provider-impl.ts";
 import { DateProviderImpl } from "@/infrastructure/adapters/date/date-provider-impl.ts";
-import { createGenerativeAIProviderFromEnv } from "@/infrastructure/adapters/generative-ai/generative-ai-provider-factory.ts";
 
 const main = async () => {
-  let generativeAiProvider: GenerativeAIProvider;
-  try {
-    generativeAiProvider = createGenerativeAIProviderFromEnv();
-  } catch (error) {
-    const detail = error instanceof Error ? error.message : String(error);
-    console.error(`Generative AI configuration error: ${detail}`);
+  const geminiApiKey = Deno.env.get("GEMINI_API_KEY");
+  if (!geminiApiKey) {
+    console.error("Please set the GEMINI_API_KEY environment variable.");
     Deno.exit(1);
   }
 
   const projectName = "katayama8000";
 
   const scrapboxRepository = new ScrapboxRepositoryImpl();
+  const generativeAiProvider = new GenerativeAIProviderImpl(geminiApiKey);
   const dateProvider = new DateProviderImpl();
 
   const generateEnglishQuestionUseCase = new GenerateEnglishQuestionUseCase(
