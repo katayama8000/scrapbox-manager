@@ -25,11 +25,8 @@ This CLI allows you to control Scrapbox directly from your terminal.
      - Issue this token from your own Cosense account settings.
      - This CLI only reads the token from environment variables. It never
        fetches or provisions tokens automatically.
-
-- AI provider is fixed to Sarashina.
-- `SARASHINA_API_KEY` is required for AI features.
-- Model (`sarashina3-mini`) and endpoint (`https://api.sarashina.ai/v1`) are
-  fixed in code.
+   - `GEMINI_API_KEY` (required for AI-generated weekly/english question
+     features)
 
 4. **Run Commands**
    - Deno automatically downloads dependencies on the first run.
