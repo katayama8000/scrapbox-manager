@@ -29,7 +29,7 @@ jobs:
       - name: Run the CLI
         env:
           COSENSE_PAT: ${{ secrets.COSENSE_PAT }}
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          SARASHINA_API_KEY: ${{ secrets.SARASHINA_API_KEY }}
         run: deno task ${{ inputs.cli_command }}
 
       - name: Notify Discord
