@@ -27,12 +27,13 @@ const main = async () => {
   );
 
   try {
-    const { title, question } = await generateEnglishQuestionUseCase.execute();
+    const { title, questions } = await generateEnglishQuestionUseCase
+      .execute();
     console.log(
       `Successfully posted generated questions to Scrapbox: ${title}`,
     );
-    console.log("Generated English Question:");
-    console.log(question);
+    console.log("Generated English Questions:");
+    console.log(questions.join("\n"));
   } catch (error) {
     console.error("Failed to generate English question:", error);
     Deno.exit(1);

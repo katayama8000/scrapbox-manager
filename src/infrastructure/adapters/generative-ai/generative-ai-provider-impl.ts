@@ -1,5 +1,5 @@
 import { GenerativeAIProvider } from "@/application/ports/generative-ai-provider.ts";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 
 export class GenerativeAIProviderImpl implements GenerativeAIProvider {
   private readonly ai: GoogleGenerativeAI;
@@ -24,9 +24,23 @@ export class GenerativeAIProviderImpl implements GenerativeAIProvider {
     return await this.generateContent(v, "gemini-2.5-flash-lite");
   }
 
-  async generateEnglishQuestion(prompt: string): Promise<string> {
-    const v = questionTemplate(prompt);
-    return await this.generateContent(v, "gemini-2.5-flash-lite");
+  // Asks for a JSON array so the model has no room for the Markdown it writes
+  // by default, which Scrapbox shows as literal `**`.
+  async generateEnglishQuestions(prompt: string): Promise<string[]> {
+    const model = this.ai.getGenerativeModel({
+      model: "gemini-2.5-flash-lite",
+      generationConfig: {
+        responseMimeType: "application/json",
+        responseSchema: {
+          type: SchemaType.ARRAY,
+          items: { type: SchemaType.STRING },
+          minItems: 3,
+          maxItems: 3,
+        },
+      },
+    });
+    const result = await model.generateContent(questionTemplate(prompt));
+    return JSON.parse(result.response.text());
   }
 }
 
