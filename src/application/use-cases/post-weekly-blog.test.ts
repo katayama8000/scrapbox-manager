@@ -145,6 +145,7 @@ Deno.test("PostWeeklyBlogUseCase.execute uses listPages result without title-bas
       capturedPrompt = prompt;
       return Promise.resolve("Connected weekly summary");
     },
+    selectEnglishPages: () => Promise.resolve([]),
     generateEnglishQuestions: () => Promise.resolve([]),
   };
 

@@ -24,60 +24,83 @@ export class GenerateEnglishQuestionUseCase {
     questions: string[],
     sourceTitles: string[],
   ): string {
-    const sourceSection = sourceTitles.length > 0
-      ? `\n\n${sourceTitles.map((title) => `[${title}]`).join("\n")}`
-      : "";
-
+    const sections = sourceTitles.map((title, index) =>
+      `[*** [${title}]]\n${
+        questions.slice(index * 3, index * 3 + 3)
+          .map((question) => question.trim()).join("\n")
+      }`
+    );
     return `[**** Generated English Questions]\n${
-      questions.map((question) => question.trim()).join("\n")
-    }${sourceSection}\n\n#generated-english-question`;
+      sections.join("\n\n")
+    }\n\n#generated-english-question`;
   }
 
   async execute(): Promise<{ title: string; questions: string[] }> {
-    const keyword = "English";
-    const pages = await this.scrapboxRepository.listPagesByKeyword(
-      this.projectName,
-      keyword,
+    // Search both spellings without relying on API case-insensitivity.
+    const results = await Promise.all(
+      ["english", "English"].map((keyword) =>
+        this.scrapboxRepository.listPagesByKeyword(this.projectName, keyword)
+      ),
     );
+    const pages = results.flatMap((pages) => pages ?? []);
 
-    if (!pages || pages.length === 0) {
-      throw new Error(`No pages found with the keyword "${keyword}".`);
+    if (pages.length === 0) {
+      throw new Error("No English pages found.");
     }
 
-    // filter by #English
-    const englishPagesTitles = pages
-      .filter((page) => page.getContent().includes(`#${keyword}`))
-      .map((page) => page.getTitle());
+    // Keep the existing #English tag compatible with lowercase #english.
+    const englishPagesTitles = [
+      ...new Set(
+        pages
+          .filter((page) => /(?:^|\s)#english(?=\s|$)/i.test(page.getContent()))
+          .map((page) => page.getTitle()),
+      ),
+    ];
 
-    // pick up 3 pages randomly
-    const selectedPagesTitles = englishPagesTitles
-      .sort(() => 0.5 - Math.random())
-      .slice(0, 3);
-
-    if (selectedPagesTitles.length === 0) {
-      throw new Error(`No pages include "#${keyword}" in content.`);
+    if (englishPagesTitles.length < 3) {
+      throw new Error(
+        "At least 3 distinct pages tagged #english are required.",
+      );
     }
 
-    // fetch pages by title
+    const selectedPagesTitles = await this.generativeAiProvider
+      .selectEnglishPages(englishPagesTitles);
+    if (
+      !Array.isArray(selectedPagesTitles) ||
+      selectedPagesTitles.length !== 3 ||
+      new Set(selectedPagesTitles).size !== 3 ||
+      selectedPagesTitles.some((title) => !englishPagesTitles.includes(title))
+    ) {
+      throw new Error("AI must select 3 distinct eligible English pages.");
+    }
+
     const selectedPages = await this.scrapboxRepository.listPagesByPageTitle(
       this.projectName,
       selectedPagesTitles,
     );
-
-    if (!selectedPages || selectedPages.length === 0) {
-      throw new Error(
-        `No pages found with the title "${selectedPagesTitles.join(", ")}".`,
+    const questions: string[] = [];
+    for (const sourceTitle of selectedPagesTitles) {
+      const sourcePage = selectedPages?.find((page) =>
+        page.getTitle() === sourceTitle
       );
+      if (!sourcePage) {
+        throw new Error(`Selected English page not found: "${sourceTitle}".`);
+      }
+      const sourceQuestions = await this.generativeAiProvider
+        .generateEnglishQuestions(
+          `Title: ${sourceTitle}\nContent:\n${sourcePage.getContent()}`,
+        );
+      if (
+        !Array.isArray(sourceQuestions) ||
+        sourceQuestions.length !== 3 ||
+        sourceQuestions.some((question) =>
+          typeof question !== "string" || question.trim().length === 0
+        )
+      ) {
+        throw new Error(`Expected 3 non-empty questions for "${sourceTitle}".`);
+      }
+      questions.push(...sourceQuestions);
     }
-
-    const prompt = selectedPages
-      .map(
-        (page) => `Title: ${page.getTitle()}\nContent:\n${page.getContent()}`,
-      )
-      .join("\n\n---\n\n");
-
-    const questions = await this.generativeAiProvider
-      .generateEnglishQuestions(prompt);
 
     const title = `English Questions ${
       this.formatDateForTitle(this.dateProvider.now())
